@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#070b16">
+<title>prosto igra lol 2 — footwork rhythm game</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ================= MENU ================= -->
+  <section id="menu" class="screen">
+    <div class="menu-bg" aria-hidden="true">
+      <div class="bg-grid"></div>
+      <div class="bg-blob blob-red"></div>
+      <div class="bg-blob blob-blue"></div>
+      <div class="bg-scan"></div>
+      <div class="floaters">
+        <i class="fl fl-1"></i>
+        <i class="fl fl-2"></i>
+        <i class="fl fl-3"></i>
+        <i class="fl fl-4"></i>
+        <i class="fl fl-5"></i>
+        <i class="fl fl-6"></i>
+      </div>
+    </div>
+
+    <div class="menu-wrap">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"><span>2</span><i></i></div>
+          <div class="brand-text">
+            <h1>prosto igra <em>lol</em> <b>2</b></h1>
+            <p>FOOTWORK RHYTHM GAME <span>/</span> CHICAGO 2015</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <span class="live-dot"></span>
+          <span>JUKE CITY RADIO</span>
+          <span class="sep">//</span>
+          <span class="muted">no copyright, only vibes</span>
+        </div>
+      </header>
+
+      <main class="menu-main">
+        <section class="panel tracks-panel">
+          <div class="panel-head">
+            <span class="idx">01</span>
+            <h2>ВЫБЕРИ ТРЕК</h2>
+            <span class="head-line"></span>
+            <span class="head-tag">3 TRACKS</span>
+          </div>
+          <div id="song-list" class="song-list" role="listbox" aria-label="Треки"></div>
+          <p class="music-note">
+            Весь саундтрек <b>генерируется в реальном времени</b> в стиле DJ Nate:
+            160 BPM, 808-бас, рубленые вокальные сэмплы и чикагский footwork.
+            Никаких чужих mp3 — только чистый синтез.
+          </p>
+        </section>
+
+        <section class="panel diff-panel">
+          <div class="panel-head">
+            <span class="idx">02</span>
+            <h2>СЛОЖНОСТЬ</h2>
+            <span class="head-line"></span>
+          </div>
+          <div id="diff-list" class="diff-list" role="radiogroup" aria-label="Сложность"></div>
+
+          <div class="best-line" id="best-line">
+            <span class="best-label">ЛУЧШИЙ РЕЗУЛЬТАТ</span>
+            <span class="best-value" id="best-value">—</span>
+          </div>
+
+          <button id="play-btn" class="play-btn" type="button">
+            <span class="play-glow"></span>
+            <span class="play-icon">▶</span>
+            <span class="play-text">ИГРАТЬ</span>
+            <span class="play-sub">ENTER</span>
+          </button>
+
+          <div class="hints">
+            <div class="hint"><b>МЫШЬ</b><span>веди курсор и кликай по кружкам</span></div>
+            <div class="hint"><b>Z / X</b><span>альтернативный клик</span></div>
+            <div class="hint"><b>ESC</b><span>пауза в игре</span></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="menu-footer">
+        <div class="volume-wrap">
+          <span class="volume-icon">VOL</span>
+          <input id="volume" type="range" min="0" max="100" value="80" aria-label="Громкость">
+          <span id="volume-val" class="volume-val">80</span>
+        </div>
+        <div class="footer-quote">
+          «двигай мышкой в ритм, не думай — чувствуй»
+        </div>
+        <div class="footer-build">v1.0 · 60 FPS · WEB AUDIO</div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ================= GAME ================= -->
+  <section id="game" class="screen hidden">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="pause-overlay" class="overlay hidden">
+      <div class="overlay-card pause-card">
+        <div class="overlay-kicker">PAUSED</div>
+        <h2 class="overlay-title">ПАУЗА</h2>
+        <div class="pause-stats">
+          <div><span>SCORE</span><b id="pause-score">0</b></div>
+          <div><span>COMBO</span><b id="pause-combo">0x</b></div>
+          <div><span>TIME</span><b id="pause-time">0:00</b></div>
+        </div>
+        <div class="overlay-btns">
+          <button id="resume-btn" class="big-btn primary" type="button">ПРОДОЛЖИТЬ</button>
+          <button id="retry-pause-btn" class="big-btn" type="button">ЗАНОВО</button>
+          <button id="menu-pause-btn" class="big-btn ghost" type="button">В МЕНЮ</button>
+        </div>
+        <p class="overlay-hint">ESC — продолжить</p>
+      </div>
+    </div>
+
+    <div id="results-overlay" class="overlay hidden">
+      <div class="overlay-card results-card">
+        <div class="results-top">
+          <div class="overlay-kicker">RESULTS / 2015 EDITION</div>
+          <div class="rank-wrap">
+            <div id="res-rank" class="rank">A</div>
+            <div id="res-record" class="new-record hidden">NEW RECORD</div>
+          </div>
+        </div>
+
+        <div class="res-song">
+          <b id="res-song-title">FOOTWORK ANTHEM</b>
+          <span id="res-song-meta">DJ NATE TRIBUTE · СРЕДНИЙ</span>
+        </div>
+
+        <div class="res-score" id="res-score">0</div>
+        <div class="res-acc" id="res-acc">0.00%</div>
+
+        <div class="res-grid">
+          <div class="res-stat"><span>MAX COMBO</span><b id="res-combo">0x</b></div>
+          <div class="res-stat"><span>300</span><b id="res-300" class="c300">0</b></div>
+          <div class="res-stat"><span>100</span><b id="res-100" class="c100">0</b></div>
+          <div class="res-stat"><span>50</span><b id="res-50" class="c50">0</b></div>
+          <div class="res-stat"><span>MISS</span><b id="res-miss" class="cmiss">0</b></div>
+          <div class="res-stat"><span>NOTES</span><b id="res-total">0</b></div>
+        </div>
+
+        <div class="res-best" id="res-best">ЛУЧШИЙ: —</div>
+
+        <div class="overlay-btns">
+          <button id="retry-btn" class="big-btn primary" type="button">ЗАНОВО</button>
+          <button id="menu-btn" class="big-btn ghost" type="button">В МЕНЮ</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/music.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
